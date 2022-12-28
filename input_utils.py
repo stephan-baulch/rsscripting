@@ -1,5 +1,5 @@
 from pynput import keyboard, mouse
-from timing import *
+from timing_utils import *
 import random
 
 #custom tkinter for input boxes
