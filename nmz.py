@@ -1,10 +1,10 @@
 from pynput import mouse, keyboard
+from audio_utils import bidoop
 import threading
 import queue
 import time
 import random
 from pandas import DataFrame
-from vlc import MediaPlayer
 
 m = mouse.Controller()
 kb = keyboard.Controller()
@@ -14,17 +14,6 @@ prayerOrbLocation = None
 inventory = None
 ovlDosesDrank = 1
 absDosesDrank = 0
-
-bidoopLocation = r"C:\Python Programs\res\pop.mp3"
-bidoopSound = MediaPlayer()
-bidoopSound.audio_set_volume(66)
-bidoopSound.retain()
-
-def bidoop():
-    global bidoopSound
-    bidoopSound.set_mrl(bidoopLocation)
-    bidoopSound.play()
-
 
 def calculateInventoryGrid(topLeft, bottomRight):
     xoffset = (bottomRight[0]-topLeft[0])/3
