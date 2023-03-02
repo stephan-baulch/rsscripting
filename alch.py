@@ -50,11 +50,11 @@ def alchThreadLoop(alchClickPos, stopLight, iterations, quantity):
         quit()
         
     #kickoff next loop
-    threading.Timer(5*TICK+1 , alchThreadLoop, args=(alchClickPos, stopLight, iterations+1, quantity)).start()
+    threading.Timer(7*TICK , alchThreadLoop, args=(alchClickPos, stopLight, iterations+1, quantity)).start()
     
     #do the alch
     click(alchClickPos)
-    ticks(1)
+    ticks(2)
     click(alchClickPos)
 
 if __name__ == "__main__":
