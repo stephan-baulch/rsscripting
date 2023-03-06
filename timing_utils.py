@@ -37,6 +37,3 @@ def deviation(maxDev):
     if dev > maxDev or dev < -maxDev:
         dev = random.randint(-maxDev, maxDev)
     return dev
-    
-def timeNow():
-    return time()
