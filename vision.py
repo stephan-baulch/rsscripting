@@ -1,7 +1,6 @@
 import cv2 as opencv
 import dxcam
 import threading
-import time
 
 # based on pyautogui/pyscreeze's implementation
 # https://github.com/asweigart/pyscreeze/blob/master/pyscreeze/__init__.py
@@ -14,7 +13,6 @@ import time
 
 # this whole class needs to be refactored into an instance that works well with the greater multi-threaded script
 _camera = None
-_window_name = "CV Output"
 
 
 # main is used for visually debugging these methods
@@ -32,6 +30,13 @@ def main():
 
         pray_orb_loc = locate_prayer_orb(screenshot)
         opencv.circle(screenshot, pray_orb_loc, 15, (255, 255, 0))
+
+        window_name = "CV Output"
+
+        opencv.namedWindow(window_name)
+        opencv.moveWindow(window_name, 1920, 0)
+
+        opencv.imshow(window_name, screenshot)
 
         if opencv.waitKey(1000) == 27:
             release_vision()
@@ -54,22 +59,23 @@ def locate_prayer_orb(template):
     return (loc[0] + 35, loc[1] + 64)
 
 
-def screenshot():
+def get_screenshot():
     # this can break because this will return None if called multiple times within the same frame
     return _camera.grab()
 
 
 def init_vision(gray=False):
     global _camera
-    global _window_name
-
-    opencv.namedWindow(_window_name)
-    opencv.moveWindow(_window_name, 1920, 0)
 
     if gray:
         _camera = dxcam.create(output_color="GRAY")
     else:
         _camera = dxcam.create(output_color="BGR")
+
+
+def release_vision():
+    global _camera
+    _camera.release()
 
 
 # the first thread that calls pollKey or waitKey has exclusive control over the window updates
@@ -84,11 +90,6 @@ def _window_thread_loop(_window_name, screenshot):
         if opencv.waitKey(1000) == 27:
             opencv.destroyWindow(_window_name)
             return
-
-
-def release_vision():
-    _camera.release()
-    opencv.destroyAllWindows()
 
 
 def _open_image(filename, gray=False):

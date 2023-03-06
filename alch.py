@@ -1,5 +1,5 @@
 from input_emulation import *
-from timing_utils import *
+from utils import *
 from user_interface import *
 from pynput import keyboard
 from queue import Queue
@@ -37,14 +37,14 @@ def alchRunnable(configQueue, stopLight):
             
     
     #wait for initial start signal
-    stopLight.waitForGreen()
+    stopLight.wait_for_green()
     
     #initialize the looping thread
     alchThreadLoop(alchClickPos, stopLight, 0, maxIterations)
 
 def alchThreadLoop(alchClickPos, stopLight, iterations, quantity):
     #block on wait signal
-    stopLight.waitForGreen()
+    stopLight.wait_for_green()
     
     if iterations == quantity:
         quit()
@@ -54,7 +54,7 @@ def alchThreadLoop(alchClickPos, stopLight, iterations, quantity):
     
     #do the alch
     click(alchClickPos)
-    ticks(2)
+    wait_ticks(2)
     click(alchClickPos)
 
 if __name__ == "__main__":

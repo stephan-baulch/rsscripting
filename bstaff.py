@@ -1,5 +1,5 @@
 from input_emulation import *
-from timing_utils import *
+from utils import *
 from user_interface import *
 from pynput import keyboard
 from queue import Queue
@@ -49,14 +49,14 @@ def bStaffRunnable(configQueue, stopLight):
     print("READY TO START")
     
     #wait for initial start signal
-    stopLight.waitForGreen()
+    stopLight.wait_for_green()
     
     #initialize the looping thread
     bStaffThreadLoop(clickPositions, stopLight, 0, bstaffCount)
 
 def bStaffThreadLoop(clickPositions, stopLight, iterations, quantity):
     #block on wait signal
-    stopLight.waitForGreen()
+    stopLight.wait_for_green()
     
     if iterations >= quantity-15:
         quit()
@@ -67,38 +67,38 @@ def bStaffThreadLoop(clickPositions, stopLight, iterations, quantity):
     #open the bank
     clickWithDelay(clickPositions["bank"], 80, 3)
     
-    ticks(3,10)
-    stopLight.waitForGreen()
+    wait_ticks(3, 10)
+    stopLight.wait_for_green()
     #deposit bstaffs
     click(clickPositions["deposit_all"],3)
     
-    ticks(2,10)
-    stopLight.waitForGreen()
+    wait_ticks(2, 10)
+    stopLight.wait_for_green()
     #withdraw orbs
     click(clickPositions["withdraw"],3)
     
     wait(350,25)
-    stopLight.waitForGreen()
+    stopLight.wait_for_green()
     #withdraw bstaffs
     click((clickPositions["withdraw"][0]+43,clickPositions['withdraw'][1]),3)
     
-    ticks(2,10)
-    stopLight.waitForGreen()
+    wait_ticks(2, 10)
+    stopLight.wait_for_green()
     #close bank
     esc()
     
-    ticks(2,25)
-    stopLight.waitForGreen()
+    wait_ticks(2, 25)
+    stopLight.wait_for_green()
     #click orb
     click(clickPositions["inventory_craft"],3)
     
     wait(350,25)
-    stopLight.waitForGreen()
+    stopLight.wait_for_green()
     #click bstaff
     click((clickPositions["inventory_craft"][0]+42,clickPositions['inventory_craft'][1]),3)
     
-    ticks(3,10)
-    stopLight.waitForGreen()
+    wait_ticks(3, 10)
+    stopLight.wait_for_green()
     #confirm craft
     spacebar()
 

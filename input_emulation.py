@@ -1,5 +1,5 @@
 from pynput import keyboard, mouse
-from timing_utils import *
+from utils import *
 import random
 
 #custom tkinter for input boxes
@@ -14,6 +14,8 @@ def click(target, maxDev=0):
     
     m.position = clickPosition
     m.press(mouse.Button.left)
+    wait(15, 5)
+    m.position = clickPosition
     m.release(mouse.Button.left)
     
 def clickWithDelay(target, delay, maxDev=0):
