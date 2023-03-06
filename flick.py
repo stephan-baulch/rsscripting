@@ -1,6 +1,6 @@
-from input_utils import *
+from input_emulation import *
 from timing_utils import *
-from log_utils import *
+from debuglogging import *
 from pynput import keyboard
 from queue import Queue, Empty
 import threading
@@ -11,7 +11,7 @@ userInputMQ = Queue()
 
 def main():
     #use default debugging logging config
-    debugLogs()
+    init_logger()
     debug("log config initialized")
     
     stopLight = StartStop()

@@ -1,6 +1,6 @@
-from input_utils import *
+from input_emulation import *
 from timing_utils import *
-from interface_utils import *
+from user_interface import *
 from pynput import keyboard
 from queue import Queue
 import threading
