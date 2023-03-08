@@ -24,10 +24,12 @@ def main():
     vision.init_vision()
     prayer_orb_pos = vision.locate_prayer_orb(vision.get_screenshot())
     vision.release_vision()
-    print(f"prayer orb pos is at {prayer_orb_pos}")
 
     threading.Thread(
-        name="flickThread", target=flick_runnable, args=(user_input_mq, stoplight, prayer_orb_pos), daemon=True
+        name="flickThread",
+        target=flick_runnable,
+        args=(user_input_mq, stoplight, prayer_orb_pos),
+        daemon=True
     ).start()
 
     with keyboard.GlobalHotKeys({
@@ -46,13 +48,8 @@ def on_adjust_timing(user_input_mq):
 
 
 def flick_runnable(user_input_mq, stoplight, prayer_orb_pos):
-    print("Config Ready")
-    # wait for initial start signal
-    stoplight.wait_for_green()
-
     s = sched.scheduler(time.time, time.sleep)
-    s.enter(0, 0, flick_loop, argument=(s, prayer_orb_pos, stoplight, time.time(), getMousePosition(), prayer_orb_pos, user_input_mq))
-
+    s.enter(0, 0, flick_loop, argument=(s, prayer_orb_pos, stoplight, time.time(), get_mouse_position(), prayer_orb_pos, user_input_mq))
     s.run()
 
 
@@ -73,8 +70,8 @@ def flick_loop(scheduler, prayer_orb_pos, stoplight, start_time, last_mouse_pos,
 
     # when moving our mouse back to the orb, randomize the location a bit
     # first condition checks if our mouse is inactive, second condition checks to see if it's already flicking
-    # if we are inactive and not already flicking, randomize
-    if getMousePosition() == last_mouse_pos and getMousePosition() != click_loc:
+    # if we are inactive and not already flicking, randomize\
+    if get_mouse_position() == last_mouse_pos and get_mouse_position() != click_loc:
         click_loc = (prayer_orb_pos[0] + round(deviation(6)), prayer_orb_pos[1] + round(deviation(6)))
 
     scheduler.enterabs(next_time, 0, flick_loop,
@@ -82,17 +79,14 @@ def flick_loop(scheduler, prayer_orb_pos, stoplight, start_time, last_mouse_pos,
                                  prayer_orb_pos,
                                  stoplight,
                                  start_time,
-                                 getMousePosition(),
+                                 get_mouse_position(),
                                  click_loc,
                                  user_input_mq))
 
     # only flick if our mouse is inactive, if it's moving, skip this iteration to allow user control
     # this allows game inputs like moving, but also clicking on another window/browser
-    if getMousePosition() == click_loc or getMousePosition() == last_mouse_pos:
-        # do the flick
-        click(click_loc)
-        wait(85, 5)
-        click(click_loc)
+    if get_mouse_position() == click_loc or get_mouse_position() == last_mouse_pos:
+        flick(click_loc)
 
 
 if __name__ == "__main__":

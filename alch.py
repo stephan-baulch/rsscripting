@@ -21,7 +21,7 @@ def main():
         l.join()
 
 def onConfigure():
-    configQueue.put(("ALCH_CONFIG", getMousePosition()))
+    configQueue.put(("ALCH_CONFIG", get_mouse_position()))
 
 def alchRunnable(configQueue, stopLight):
     

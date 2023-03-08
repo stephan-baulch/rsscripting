@@ -22,7 +22,7 @@ def main():
         l.join()
 
 def onConfigure():
-    configQueue.put(("BSTAFF_CONFIG", getMousePosition()))
+    configQueue.put(("BSTAFF_CONFIG", get_mouse_position()))
 
 def bStaffRunnable(configQueue, stopLight):
     clickPositions = {}
@@ -65,7 +65,7 @@ def bStaffThreadLoop(clickPositions, stopLight, iterations, quantity):
     threading.Timer(28+deviation(1000)/1000, bStaffThreadLoop, args=(clickPositions, stopLight, iterations+14, quantity)).start()
     
     #open the bank
-    clickWithDelay(clickPositions["bank"], 80, 3)
+    click_with_delay(clickPositions["bank"], 80, 3)
     
     wait_ticks(3, 10)
     stopLight.wait_for_green()
