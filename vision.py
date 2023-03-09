@@ -1,6 +1,7 @@
 import cv2 as opencv
 import dxcam
 import threading
+import utils
 
 # based on pyautogui/pyscreeze's implementation
 # https://github.com/asweigart/pyscreeze/blob/master/pyscreeze/__init__.py
@@ -23,11 +24,15 @@ def main():
     while True:
         screenshot = _camera.grab()
 
-        inv_loc = locate_inventory(screenshot)
+        #inv_loc = locate_inventory(screenshot)
+        print(f"screenshotshape:{screenshot.shape}")
+        pray_orb_loc = locate_prayer_orb(screenshot)
 
         # get the image of inventory only
-        inv_region = (inv_loc[0] - 20, inv_loc[1] - 20, inv_loc[0] + 147, inv_loc[1] + 237)
-        inv = screenshot[inv_region[1]:inv_region[3], inv_region[0]:inv_region[2]]
+        # inv_region = (inv_loc[0] - 20, inv_loc[1] - 20, inv_loc[0] + 147, inv_loc[1] + 237)
+        # inv = screenshot[inv_region[1]:inv_region[3], inv_region[0]:inv_region[2]]
+
+        print(f"result={check_flick_failure(screenshot, pray_orb_loc)}")
 
         # used for debugging find match in inventory
         # match_image4 = _open_image(r"res\Absorb4.png")
@@ -43,14 +48,14 @@ def main():
         # pray_orb_loc = locate_prayer_orb(screenshot)
         # opencv.circle(screenshot, pray_orb_loc, 15, (255, 255, 0))
 
-        window_name = "CV Output"
+        # window_name = "CV Output"
+        #
+        # opencv.namedWindow(window_name)
+        # opencv.moveWindow(window_name, 1920, 0)
+        #
+        # opencv.imshow(window_name, inv)
 
-        opencv.namedWindow(window_name)
-        opencv.moveWindow(window_name, 1920, 0)
-
-        opencv.imshow(window_name, inv)
-
-        if opencv.waitKey(10000) == 27:
+        if opencv.waitKey(1000) == 27:
             release_vision()
             return
 
@@ -92,6 +97,37 @@ def find_locator_orb(inventory):
     return results[0] if results else None
 
 
+def check_nmz_exit(screenshot, prayer_orb_loc):
+    # broken because coffer is not visible on death
+    # rewrite this for full hp?
+    top_left = (prayer_orb_loc[0]-12, prayer_orb_loc[1]-53)
+    template = screenshot[top_left[1]:top_left[1]+38, top_left[0]:top_left[0]+27]
+    image = _open_image(r"res\fullhp.png")
+    result = opencv.matchTemplate(image, template, opencv.TM_SQDIFF)
+    val, _, _, _ = opencv.minMaxLoc(result)
+    return True if val < 1000 else False
+
+
+def check_flick_failure(screenshot, prayer_orb_loc):
+    top_left = (prayer_orb_loc[0]-5, prayer_orb_loc[1]-5)
+    template = screenshot[top_left[1]:top_left[1]+10, top_left[0]:top_left[0]+10]
+    image = _open_image(r"res\PrayerOrbActive.png")
+    result = opencv.matchTemplate(image, template, opencv.TM_SQDIFF)
+    val, _, _, _ = opencv.minMaxLoc(result)
+    # match values were always 0.0, failures were over 2million
+    return True if val < 1000 else False
+
+
+def check_hp_over_1(screenshot, prayer_orb_loc):
+    top_left = (prayer_orb_loc[0]-40, prayer_orb_loc[1]-45)
+    template = screenshot[top_left[1]:top_left[1]+30, top_left[0]:top_left[0]+30]
+    image = _open_image(r"res\1hp.png")
+    result = opencv.matchTemplate(image, template, opencv.TM_SQDIFF)
+    val, _, _, _ = opencv.minMaxLoc(result)
+    # match values were always 0.0, failures were around 800k
+    return False if val < 1000 else True
+
+
 def find_in_inventory(image, inventory, threshold=50000):
     """
     returns a list of tuples in (x,y,val) format sorted by best match first
@@ -119,14 +155,18 @@ def find_in_inventory(image, inventory, threshold=50000):
     return sorted(matches, key=lambda x: x[2])
 
 
-def get_screenshot(region=None):
-    # this can break because this will return None if called multiple times within the same frame
-    return _camera.grab(region)
-
-
 def crop_inventory(inv_loc, screenshot):
     region = (inv_loc[0] - 20, inv_loc[1] - 20, inv_loc[0] + 147, inv_loc[1] + 237)
     return screenshot[region[1]:region[3], region[0]:region[2]]
+
+
+def get_screenshot(region=None):
+    grab = _camera.grab(region)
+    while grab is None:
+        print("failed to capture screenshot, retrying")
+        utils.wait(100)
+        grab = _camera.grab(region)
+    return grab
 
 
 def init_vision(gray=False):
