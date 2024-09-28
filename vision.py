@@ -21,44 +21,47 @@ INV_GRID_SIZE = 32
 def main():
     init_vision()
 
+    screenshot = _camera.grab()
+
+    inv_loc = locate_inventory_from_bank(screenshot)
+    print(f"inv loc:{inv_loc}")
+    pray_orb_loc = locate_prayer_orb(screenshot)
+
+    # get the image of inventory only
+    inv_region = (inv_loc[0] - 20, inv_loc[1] - 20, inv_loc[0] + 147, inv_loc[1] + 237)
+    inv = screenshot[inv_region[1]:inv_region[3], inv_region[0]:inv_region[2]]
+
+    # print(f"result={check_flick_failure(screenshot, pray_orb_loc)}")
+
+    # used for debugging find match in inventory
+    # match_image4 = _open_image(r"res\Absorb4.png")
+    # print(find_matches_in_inventory(match_image4, inv))
+
+    # used for debugging locate inventory
+    for i in range(4):
+        for j in range(7):
+            opencv.circle(screenshot, (int(inv_loc[0] + i * 127 / 3), int(inv_loc[1] + j * 217 / 6)), 15, (255, 0, 255))
+
+    # used for debugging locate prayer orb
+    pray_orb_loc = locate_prayer_orb(screenshot)
+    opencv.circle(screenshot, pray_orb_loc, 15, (255, 255, 0))
+    
+    gsweed_loc = locate_gsweed(screenshot)
+    sand_loc = (gsweed_loc[0]+47, gsweed_loc[1])
+    opencv.circle(screenshot, gsweed_loc, 15, (255, 255, 0))
+    opencv.circle(screenshot, sand_loc, 15, (255, 255, 0))
+
+    window_name = "CV Output"
+    
+    opencv.namedWindow(window_name)
+    opencv.moveWindow(window_name, 1920, 0)
+    
+    opencv.imshow(window_name, screenshot)
+
     while True:
-        screenshot = _camera.grab()
-
-        #inv_loc = locate_inventory(screenshot)
-        print(f"screenshotshape:{screenshot.shape}")
-        pray_orb_loc = locate_prayer_orb(screenshot)
-
-        # get the image of inventory only
-        # inv_region = (inv_loc[0] - 20, inv_loc[1] - 20, inv_loc[0] + 147, inv_loc[1] + 237)
-        # inv = screenshot[inv_region[1]:inv_region[3], inv_region[0]:inv_region[2]]
-
-        print(f"result={check_flick_failure(screenshot, pray_orb_loc)}")
-
-        # used for debugging find match in inventory
-        # match_image4 = _open_image(r"res\Absorb4.png")
-        # print(find_matches_in_inventory(match_image4, inv))
-
-        # used for debugging locate inventory
-        # for i in range(4):
-        #     for j in range(7):
-        #         opencv.circle(inv, (int(inv_loc[0] + i * 127 / 3), int(inv_loc[1] + j * 217 / 6)), 15,
-        #                       (255, 0, 255))
-
-        # used for debugging locate prayer orb
-        # pray_orb_loc = locate_prayer_orb(screenshot)
-        # opencv.circle(screenshot, pray_orb_loc, 15, (255, 255, 0))
-
-        # window_name = "CV Output"
-        #
-        # opencv.namedWindow(window_name)
-        # opencv.moveWindow(window_name, 1920, 0)
-        #
-        # opencv.imshow(window_name, inv)
-
         if opencv.waitKey(1000) == 27:
             release_vision()
             return
-
 
 # returns coordinate in x,y format
 def locate_inventory(template):
@@ -66,7 +69,13 @@ def locate_inventory(template):
     result = opencv.matchTemplate(match_image, template, opencv.TM_SQDIFF)
     val, _, loc, _ = opencv.minMaxLoc(result)
     return loc[0] + 48, loc[1] + 55
-
+    
+# returns coordinate in x,y format
+def locate_inventory_from_bank(template):
+    match_image = _open_image(r"res\BankInventoryMatcher.png")
+    result = opencv.matchTemplate(match_image, template, opencv.TM_SQDIFF)
+    val, _, loc, _ = opencv.minMaxLoc(result)
+    return loc[0] + 48, loc[1] + 50
 
 # returns coordinate in x,y format
 def locate_prayer_orb(template):
@@ -74,7 +83,18 @@ def locate_prayer_orb(template):
     result = opencv.matchTemplate(match_image, template, opencv.TM_SQDIFF)
     val, _, loc, _ = opencv.minMaxLoc(result)
     return loc[0] + 35, loc[1] + 64
-
+    
+def locate_gsweed(template):
+    match_image = _open_image(r"res\gsweed.png")
+    result = opencv.matchTemplate(match_image, template, opencv.TM_SQDIFF)
+    val, _, loc, _ = opencv.minMaxLoc(result)
+    return loc[0] + 15, loc[1] + 5
+    
+def locate_superglass(template):
+    match_image = _open_image(r"res\superglass.png")
+    result = opencv.matchTemplate(match_image, template, opencv.TM_SQDIFF)
+    val, _, loc, _ = opencv.minMaxLoc(result)
+    return loc[0] + 8, loc[1] + 10
 
 def find_all_overloads(inventory):
     overloads = find_in_inventory(_open_image(r"res\Overload1.png"), inventory)

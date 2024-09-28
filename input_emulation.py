@@ -33,7 +33,7 @@ def click_with_delay(target, delay, max_dev=0):
     if max_dev != 0:
         click_position = (click_position[0] + deviation(max_dev), click_position[1] + deviation(max_dev))
     _m.position = click_position
-    wait(delay)
+    wait(delay + deviation(delay/4))
     click(click_position)
 
 
